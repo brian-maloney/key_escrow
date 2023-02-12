@@ -35,7 +35,6 @@ def lambda_handler(event, context):
             'isBase64Encoded': False
     }
 
-
     if response['result'] == 'allow':
         obj = s3.Object('vond-key-escrow', 'keys/' + request['key']).get()
         return_struct['headers']['Content-Type'] = obj['ContentType']
