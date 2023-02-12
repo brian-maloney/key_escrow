@@ -1,7 +1,6 @@
 import boto3
 import configparser
 import io
-import json
 from base64 import b64encode
 import duo_client
 
@@ -18,10 +17,8 @@ def lambda_handler(event, context):
         host = config.get('duo', 'host'),
     )
 
-    request = json.loads(event['body'])
-
     response = auth_api.auth(
-        username=request['user'],
+        username=event['queryStringParameters']['user'],
         device='auto',
         factor='push',
     )
@@ -36,7 +33,7 @@ def lambda_handler(event, context):
     }
 
     if response['result'] == 'allow':
-        obj = s3.Object('vond-key-escrow', 'keys/' + request['key']).get()
+        obj = s3.Object('vond-key-escrow', 'keys/' + event['queryStringParameters']['key']).get()
         return_struct['headers']['Content-Type'] = obj['ContentType']
         if obj['ContentType'].endswith('octet-stream'):
             return_struct['isBase64Encoded'] = True
